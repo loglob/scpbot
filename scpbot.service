@@ -4,6 +4,7 @@
 	Wants=network-online.target
 [Service]
 	Type=simple
+	Environment="DOTNET_BUNDLE_EXTRACT_BASE_DIR=./.net"
 	WorkingDirectory=/srv/scpbot
 	ExecStart=/srv/scpbot/scpbot
 	RestartSec=24h
