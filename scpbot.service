@@ -1,0 +1,11 @@
+[Unit]
+	Description=SCP lookup bot
+	After=network-online.target
+	Wants=network-online.target
+[Service]
+	Type=simple
+	WorkingDirectory=/srv/scpbot
+	ExecStart=/srv/scpbot/scpbot
+	RestartSec=24h
+[Install]
+	WantedBy=multi-user.target
