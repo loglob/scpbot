@@ -1,2 +1,38 @@
 # scpbot
 A discord bot that looks up SCP entries
+
+## The bot
+Sending a message containing the word `scp` (case insensitive)
+causes the bot to check for any entry numbers or entry titles in the message,
+and responds with a list of all matching SCPs.
+
+A title must be enclosed in `"` or `'`.
+
+## Hosting
+A systemD service file is included (`scpbot.service`)
+
+To use it, build to `/srv/scpbot` by using the `./install.sh` script
+
+## Configuration
+To configure the bot, use the `config.json` file.
+Its fields are:
+
+### MinSearchResults
+Sets how many search results are returned at minimum when searching for titles.
+
+If an exact match is found, this value is ignored and only that entry is given.
+
+### MaxSearchResults
+Sets how many search results are returned at most.
+
+### DeleteCost
+Sets the 'cost' of omitting a search term from a title search. (for a modified Levenshtein algorithm)
+
+### InsertCost
+Sets the 'cost' of including an unrelated search term in a title search.
+
+### ReplaceCost
+Sets the 'cost' of replacing a search term during title search.
+
+### SeriesCount
+The amount of SCP series there currently are.
