@@ -36,8 +36,6 @@ namespace scpbot
 		{
 			private const string baseUrl = "http://www.scpwiki.com/scp-series";
 
-			// The amount of series there are
-			public const int Count = 6;
 			public readonly int Number;
 
 			public string Url
@@ -54,24 +52,30 @@ namespace scpbot
 				var page = new HtmlDocument();
 				page.Load(new HttpClient().GetStreamAsync(Url).Sync<Stream>());
 				var ereg = new Regex(@"SCP-[0-9]{3,4} - .*");
+				int lastnum = (Number == 1) ? 0 : (Number - 1) * 1000 - 1;
 
 				foreach (var ul in page.DocumentNode.SelectNodes(
-					"//div[@id='page-content']//div[@class='content-panel standalone series']/ul")
-					.Skip(1))
+					"//div[@id='page-content']//div[@class='content-panel standalone series']/ul"))
 				{
 					foreach (var li in ul.ChildNodes)
 					{
 						var s = WebUtility.HtmlDecode(li.InnerText);
 
-						if(!ereg.Match(s).Success)
+						if(string.IsNullOrWhiteSpace(s))
 							continue;
 
 						string[] parts = s.Split(" - ", 2);
 
+						if(!ereg.Match(s).Success)
+						{ // format screw entry
+							yield return new Entry(parts.Length == 2 ? parts[1] : s, ++lastnum);
+							continue;
+						}
+
 						if(parts[1] == "[ACCESS DENIED]")
 							continue;
 
-						yield return new Entry(parts[1], int.Parse(parts[0].Substring(4)));
+						yield return new Entry(parts[1], lastnum = int.Parse(parts[0].Substring(4)));
 					}
 				}
 			}
@@ -104,6 +108,15 @@ namespace scpbot
 			var all = results.SelectMany(s => s);
 
 			titles = new FuzzyDict<Entry>(conf.DeleteCost, conf.ReplaceCost, conf.InsertCost);
+
+			foreach(var g in all.GroupBy(e => e.Number)
+				.Where(g => g.Count() > 1))
+			{
+				Console.WriteLine($"Duplicates for number {g.Key}:");
+
+				foreach (var i in g)
+					Console.WriteLine($"{i.Title}");
+			}
 
 			titles.Add(all.Select(e => (e.Title, e)));
 			numbers = all.ToDictionary(e => e.Number);
