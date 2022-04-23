@@ -22,6 +22,11 @@ namespace scpbot
 
 				try
 				{
+					bool count = q[0] == '#';
+
+					if(count)
+						q = q.Substring(1);
+
 					var s = q.Split("..");
 
 					var e =
@@ -31,9 +36,9 @@ namespace scpbot
 								? new[]{ w.GetEntry(n) }
 								: w.SearchTitle(q).ToArray();
 
-					Console.WriteLine($"Found {e.Length} matches:");
+					Console.WriteLine($"Found {e.Length} matches");
 
-					foreach (var x in e)
+					if(!count) foreach (var x in e)
 						Console.WriteLine($"{x.Number}: '{x.Title}' @{x.Url}");
 				}
 				catch(Exception ex)
