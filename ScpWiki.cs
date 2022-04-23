@@ -113,5 +113,8 @@ namespace scpbot
 			=> titles.Search(title, conf.MinSearchResults, conf.MaxSearchResults);
 		public Entry GetEntry(int number)
 			=> numbers[number];
+
+		public IEnumerable<Entry> AllEntries
+			=> numbers.Values;
 	}
 }
