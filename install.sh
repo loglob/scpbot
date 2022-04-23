@@ -4,7 +4,7 @@ dotnet publish --self-contained -c Release -r linux-x64 -p:PublishSingleFile=tru
 
 if [ "$serviceStatus" = "active" ]; then systemctl stop scpbot; fi;
 
-cp -r bin/Release/netcoreapp3.1/linux-x64/publish/* /srv/scpbot
-cp config.json token scpbot.service /srv/scpbot
+cp -r bin/Release/net6/linux-x64/publish/* /srv/scpbot
+cp config.json token /srv/scpbot
 
 if [ "$serviceStatus" = "active" ]; then systemctl start scpbot; fi;
