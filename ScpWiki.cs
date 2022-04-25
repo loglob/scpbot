@@ -12,9 +12,11 @@ namespace scpbot
 {
 	class ScpWiki
 	{
+		internal const string wikiUrl = "https://scp-wiki.wikidot.com/";
+
 		public class Entry
 		{
-			private const string baseUrl = "http://www.scpwiki.com/scp-";
+			private const string baseUrl = wikiUrl + "scp-";
 
 			public string Title { get; }
 			public int Number { get; }
@@ -34,7 +36,7 @@ namespace scpbot
 
 		private class Series
 		{
-			private const string baseUrl = "http://www.scpwiki.com/scp-series";
+			private const string baseUrl = wikiUrl + "scp-series";
 
 			public readonly int Number;
 
