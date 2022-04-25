@@ -43,16 +43,39 @@ namespace scpbot
 			public string Url
 				=> Number == 1 ? baseUrl : $"{baseUrl}-{Number}";
 
+			private HtmlDocument page;
+
 			internal Series(int number)
 			{
 				Number = number;
+				page = new HtmlDocument();
+				page.Load(new HttpClient().GetStreamAsync(Url).Sync<Stream>());
+			}
+
+			public int TotalSeriesCount
+			{
+				get
+				{
+					var sreg = new Regex(@"/scp-series-([0-9]+)");
+
+					try
+					{
+						return page.DocumentNode.SelectNodes(@"//div[@class='side-block']/div[@class='menu-item small'][1]/a")
+							.Select(i => sreg.Match(i.Attributes["href"].Value))
+							.Where(m => m.Success)
+							.Select(m => int.Parse(m.Groups[1].Value))
+							.Max();
+					}
+					catch(Exception ex)
+					{
+						throw new Exception("Failed to parse total series count", ex);
+					}
+				}
 			}
 
 			public IEnumerable<Entry> GetEntries()
 			{
 				// var page = new HtmlWeb().Load(Url);
-				var page = new HtmlDocument();
-				page.Load(new HttpClient().GetStreamAsync(Url).Sync<Stream>());
 				var ereg = new Regex(@"SCP-[0-9]{3,4} - .*");
 				int lastnum = (Number == 1) ? 0 : (Number - 1) * 1000 - 1;
 
@@ -104,10 +127,15 @@ namespace scpbot
 		public ScpWiki(Config conf)
 		{
 			this.conf = conf;
-			var results = new List<Entry>[conf.SeriesCount];
+			// the first series is used to determine the total count of series
+			var s1 = new Series(1);
+			var results = new List<Entry>[s1.TotalSeriesCount];
+
+			Console.WriteLine($"Loading {results.Length} series");
 
 			if(!Parallel.For(0, results.Length,
-				i => results[i] = new Series((int)i + 1).GetEntries().ToList()).IsCompleted)
+				i => results[i] = (i == 0 ? s1 : new Series((int)i + 1))
+					.GetEntries().ToList()).IsCompleted)
 				throw new Exception("Failed to load at least one series!");
 
 			var all = results.SelectMany(s => s);

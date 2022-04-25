@@ -29,10 +29,5 @@ namespace scpbot
 		/// The cost of replacing a search term
 		/// </summary>
 		public int ReplaceCost { get; set; }
-
-		/// <summary>
-		/// The amount of series that exist
-		/// </summary>
-		public int SeriesCount { get; set; }
 	}
 }
