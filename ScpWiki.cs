@@ -75,7 +75,10 @@ namespace scpbot
 						}
 
 						if(parts[1] == "[ACCESS DENIED]")
+						{
+							lastnum++;
 							continue;
+						}
 
 						yield return new Entry(parts[1], lastnum = int.Parse(parts[0].Substring(4)));
 					}
