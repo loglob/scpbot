@@ -26,13 +26,11 @@ If an exact match is found, this value is ignored and only that entry is given.
 Sets how many search results are returned at most.
 
 ### DeleteCost
-Sets the 'cost' of omitting a search term from a title search. (for a modified Levenshtein algorithm)
+Sets the cost of omitting a search term from a title search.
+These 3 cost entries are used for a modified [Levenshtein algorithm](https://en.wikipedia.org/wiki/Levenshtein_distance).
 
 ### InsertCost
-Sets the 'cost' of including an unrelated search term in a title search.
+Sets the cost of including an unrelated search term in a title search.
 
 ### ReplaceCost
 Sets the 'cost' of replacing a search term during title search.
-
-### SeriesCount
-The amount of SCP series there currently are.
