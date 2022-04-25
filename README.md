@@ -9,9 +9,12 @@ and responds with a list of all matching SCPs.
 A title must be enclosed in `"` or `'`.
 
 ## Hosting
-A systemD service file is included (`scpbot.service`)
+A systemD service file is included (`scpbot.service`).
 
 To use it, build to `/srv/scpbot` by using the `./install.sh` script
+and create a file named `token` containing your Discord bot token in the same directory.
+
+If you want to write your own hosting scripts, note that the bot scrapes the SCP wiki at startup and doesn't refresh its index, so it should be periodically restarted to receive newer entries.
 
 ## Configuration
 To configure the bot, use the `config.json` file.
