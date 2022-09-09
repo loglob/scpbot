@@ -63,42 +63,37 @@ namespace scpbot
 			=> terms.ToLower().Split();
 
 		/// <summary>
-		/// Determines the edit distance from one array to another with offsets
+		/// Levenshtein distance with branch pruning
 		/// </summary>
 		/// <param name="l">The original array</param>
 		/// <param name="r">The edited array</param>
-		/// <param name="l0">The current index in l</param>
-		/// <param name="r0">The current index in r</param>
-		/// <returns>The edit distance from l to r</returns>
-		private int distance(string[] l, string[] r, int l0, int r0)
+		/// <param name="curMin">The current known minimum</param>
+		/// <param name="cur">The cost of reaching this state</param>
+		/// <returns>The edit distance from l to r, or curMin, whichever is lower</returns>
+		private int distance(ArraySegment<string> l, ArraySegment<string> r, int curMin = int.MaxValue, int cur = 0)
 		{
-			recurse:
-			if(l0 >= l.Length)
-				return (r.Length - r0) * insertCost;
-			if(r0 >= r.Length)
-				return (l.Length - l0) * deleteCost;
-			if(l[l0] == r[r0])
-			{
-				l0++;
-				r0++;
-				goto recurse;
-			}
+			if(cur >= curMin
+			 || (l.Count > r.Count && cur + (l.Count - r.Count) * deleteCost >= curMin)
+			 || (l.Count < r.Count && cur + (r.Count - l.Count) * insertCost >= curMin))
+			// prune this branch.
+				return curMin;
 
-			return Math.Min(
-				distance(l,r,l0 + 1, r0) + deleteCost,
-				Math.Min(
-					distance(l,r,l0, r0 + 1) + insertCost,
-					distance(l,r,l0 + 1, r0 + 1) + replaceCost));
+			if(l.Count == 0)
+				return cur + r.Count * insertCost;
+			if(r.Count == 0)
+				return cur + l.Count * deleteCost;
+			if(l[0] == r[0])
+				return distance(l.Slice(1), r.Slice(1), curMin, cur);
+
+			if(replaceCost < deleteCost + insertCost)
+				curMin = distance(l.Slice(1), r.Slice(1), curMin, cur + replaceCost);
+
+			curMin = distance(l, r.Slice(1), curMin, cur + insertCost);
+
+			curMin = distance(l.Slice(1), r, curMin, cur + deleteCost);
+
+			return curMin;
 		}
-
-		/// <summary>
-		/// Determines the edit distance from one array to another
-		/// </summary>
-		/// <param name="original">The original array</param>
-		/// <param name="str">The edited array</param>
-		/// <returns>The edit distance from original to str</returns>
-		private int distance(string[] original, string[] str)
-			=> distance(original, str, 0, 0);
 
 		/// <summary>
 		/// Searches for a search term.
