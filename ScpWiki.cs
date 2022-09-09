@@ -56,14 +56,14 @@ namespace scpbot
 			{
 				get
 				{
-					var sreg = new Regex(@"/scp-series-([0-9]+)");
+					var sreg = new Regex(@"^/scp-series-([0-9]+)$");
 
 					try
 					{
-						return page.DocumentNode.SelectNodes(@"//div[@class='side-block']/div[@class='menu-item small'][1]/a")
-							.Select(i => sreg.Match(i.Attributes["href"].Value))
-							.Where(m => m.Success)
-							.Select(m => int.Parse(m.Groups[1].Value))
+						return page.DocumentNode.SelectNodes(@"//a[@href]")
+							.Select(s => s.Attributes["href"].Value)
+							.Where(p => sreg.Match(p).Success)
+							.Select(s => int.Parse(s.Split('-')[2]) )
 							.Max();
 					}
 					catch(Exception ex)
