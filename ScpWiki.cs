@@ -76,8 +76,8 @@ namespace scpbot
 			public IEnumerable<Entry> GetEntries()
 			{
 				// var page = new HtmlWeb().Load(Url);
-				var ereg = new Regex(@"SCP-[0-9]{3,4} - .*");
-				int lastnum = (Number == 1) ? 0 : (Number - 1) * 1000 - 1;
+				var urlRegex = new Regex(@"/scp-[0-9]+$");
+				int lastNum = (Number == 1) ? 0 : (Number - 1) * 1000 - 1;
 
 				foreach (var ul in page.DocumentNode.SelectNodes(
 					"//div[@id='page-content']//div[@class='content-panel standalone series']/ul"))
@@ -89,21 +89,21 @@ namespace scpbot
 						if(string.IsNullOrWhiteSpace(s))
 							continue;
 
-						string[] parts = s.Split(" - ", 2);
+						var nav = li.CreateNavigator().SelectDescendants("a","", false);
 
-						if(!ereg.Match(s).Success)
-						{ // format screw entry
-							yield return new Entry(parts.Length == 2 ? parts[1] : s, ++lastnum);
+						if(!nav.MoveNext())
 							continue;
-						}
 
-						if(parts[1] == "[ACCESS DENIED]")
-						{
-							lastnum++;
-							continue;
-						}
+						var link = nav.Current.GetAttribute("href", "");
+						string name = s.Split(" - ", 2).Last();
 
-						yield return new Entry(parts[1], lastnum = int.Parse(parts[0].Substring(4)));
+						if(!urlRegex.Match(link).Success)
+						// link format screw (only SCP-1231 and SCP-2615)
+							yield return new Entry(name, ++lastNum);
+						else if(name == "[ACCESS DENIED]")
+							lastNum++;
+						else
+							yield return new Entry(name, lastNum = int.Parse(link.Substring(5)));
 					}
 				}
 			}
