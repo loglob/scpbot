@@ -76,7 +76,7 @@ namespace scpbot
 			public IEnumerable<Entry> GetEntries()
 			{
 				// var page = new HtmlWeb().Load(Url);
-				var urlRegex = new Regex(@"/scp-[0-9]+$");
+				var urlRegex = new Regex(@"^/scp-[0-9]+$");
 				int lastNum = (Number == 1) ? 0 : (Number - 1) * 1000 - 1;
 
 				foreach (var ul in page.DocumentNode.SelectNodes(
